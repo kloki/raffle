@@ -15,9 +15,9 @@ contract Raffle {
 
     function join() public {
         require(!is_closed, "Raffle is closed");
-        require(msg.sender != owner, "Cannot join your own raffle");
+        require(msg.sender != owner, "Can't join your own raffle");
         for (uint i = 0; i < participants.length; i++) {
-            require(msg.sender != participants[i], "Cannot join raffle twice");
+            require(msg.sender != participants[i], "Can't join raffle twice");
         }
         participants.push(msg.sender);
     }
@@ -43,6 +43,11 @@ contract Raffle {
             )
         ) % participants.length);
         winner = participants[randomnumber];
+
+    }
+    function get_winner() public view returns (address) {
+        require(is_closed, "Raffle is still open");
+        return winner;
 
     }
 }

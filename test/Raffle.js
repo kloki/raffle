@@ -8,27 +8,21 @@ describe("Raffle contract", function () {
 
     expect(await raffle.owner()).to.equal(owner);
   });
-  it("Cannot join own contract", async function () {
+  it("Can't join own contract", async function () {
     const raffle = await ethers.deployContract("Raffle");
 
     await expect(raffle.join()).to.be.revertedWith(
-      "Cannot join your own raffle"
+      "Can't join your own raffle"
     );
     expect(await raffle.size()).to.equal(0);
   });
-  it("Success", async function () {
-    const [_, p1, p2] = await ethers.getSigners();
-    const raffle = await ethers.deployContract("Raffle");
-    await raffle.connect(p1).join();
-    await raffle.connect(p2).join();
-    expect(await raffle.size()).to.equal(2);
-  });
-  it("Cannot join twice", async function () {
+
+  it("Can't join twice", async function () {
     const [_, p1] = await ethers.getSigners();
     const raffle = await ethers.deployContract("Raffle");
     await raffle.connect(p1).join();
     await expect(raffle.connect(p1).join()).to.be.revertedWith(
-      "Cannot join raffle twice"
+      "Can't join raffle twice"
     );
     expect(await raffle.size()).to.equal(1);
   });
@@ -42,7 +36,7 @@ describe("Raffle contract", function () {
       "Raffle is closed"
     );
   });
-  it("Non owner can't finalize", async function () {
+  it("Non-owner can't finalize", async function () {
     const [_, p1, p2] = await ethers.getSigners();
     const raffle = await ethers.deployContract("Raffle");
     await raffle.connect(p1).join();
@@ -64,6 +58,13 @@ describe("Raffle contract", function () {
     const raffle = await ethers.deployContract("Raffle");
     await expect(raffle.finalize()).to.be.revertedWith("No participants");
   });
+
+  it("Error when is still open", async function () {
+    const raffle = await ethers.deployContract("Raffle");
+    await expect(raffle.get_winner()).to.be.revertedWith(
+      "Raffle is still open"
+    );
+  });
   it("Happy flow", async function () {
     const [owner, p1, p2, p3, p4, p5] = await ethers.getSigners();
     const raffle = await ethers.deployContract("Raffle");
@@ -75,6 +76,6 @@ describe("Raffle contract", function () {
     expect(await raffle.size()).to.equal(5);
     await raffle.connect(owner).finalize();
     expect(await raffle.is_closed()).to.equal(true);
-    expect(await raffle.winner()).to.not.undefined;
+    expect(await raffle.get_winner()).to.not.undefined;
   });
 });
